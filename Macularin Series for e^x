@@ -1,0 +1,43 @@
+#include <iostream>
+#include <cmath>
+#include <fstream>
+
+//function to approximate e^x using the first N terms of the Maclaurin series
+double ExpSeries(double x, int N)
+{
+    double T = 1 ; //inital term in the sum
+    double M = 1; 
+
+    for (int i = 1; i < N + 1 ; i++) 
+    {
+        T = ( x / i ) * T ;    //calculates the next term in the sequence
+        M += T ;               //adds the next term to the sum
+    }
+
+    return M;
+}
+
+int main()
+{
+    std::ofstream data_exp ;
+
+    data_exp.open("data_exp.txt"); //opens the file
+    if (!data_exp) return 1;     //checks the file has opened properly 
+   
+   for (double x = -1 ; x < 1.01; x += 0.02)
+   {
+    //Each iteration of the loop evaulates the respective functions
+    //for the given value of x and stores it in the .txt file
+    data_exp.width(20); data_exp << x ;                         //x
+    data_exp.width(20); data_exp << exp(x) ;                    //e^x
+    data_exp.width(20); data_exp << ExpSeries(x, 1);            //M_1
+    data_exp.width(20); data_exp << ExpSeries(x, 2);            //M_2
+    data_exp.width(20); data_exp << ExpSeries(x, 3) << "\n" ;   //M_3
+
+   }
+    
+    data_exp.close() ; //closes and saves the file
+
+    return 0;
+
+}
