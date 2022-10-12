@@ -1,0 +1,64 @@
+%Program to approximate the eigenvalues of the Orr-Sommerfeld equation for Poisuelle flow
+%The aim is to find a value of a (the wave number in the x direction) and Re (Reynolds number)
+%for which the imaginary part of at least of eigencalue (c-the phase speed) is positive. 
+
+clc
+close all
+clear all
+
+a = 1.02056;           %alpha-wavenumber
+Re = 5772.22;          %Reynolds Number
+
+dz = 0.002;         %Spatial step size
+N = 2/dz + 1;       %Number of nodes in a length 2 channel
+z = -1:dz:1; 
+
+S = (1i * a * Re)^(-1);
+Q = 2+a^2*dz^2;  %constant
+
+B = zeros(2*N,2*N);  
+
+for i = 1 : N-2
+    B(2*i+2,2*i+2) = 1;
+end
+
+A = zeros(2*N,2*N) ;
+
+%Inputting stencil 1
+for i = 1 : N-2
+
+    A(1+2*i, 2*i-1) = 1;     
+    A(1+2*i, 2*i+1) = -Q;
+    A(1+2*i, 2*i+2) = -dz^2;
+    A(1+2*i, 2*i+3) = 1;
+
+end
+
+%Inputting stencil 2
+for i = 1 : N-2
+
+    A(2*i+2, 2*i) = -S / dz^2 ;
+    A(2*i+2, 2*i+1) = 2 ;
+    A(2*i+2, 2*i+2) = S * a^2 + i * dz * (2 - i * dz) + 2 * dz^(-2) * S ;
+    A(2*i+2, 2*i+4) = -S / dz^2 ;
+
+end
+
+%BCs 
+A(1,1) = 1;           %phi_1=0
+A(2*N-1,2*N-1) = 1;   %phi_N=0
+A(2,3) = 4;             
+A(2,5) = -1;
+A(2*N,2*N-3) = -4;
+A(2*N,2*N-5) = 1;
+
+
+c = eig(A,B) ;   %solves AX=lambda BX
+
+%Plot 
+figure(1); hold on 
+xlabel('$Re(c)$','FontSize',15,'interpreter','latex')
+ylabel('$Im(c)$','FontSize',15,'interpreter','latex')
+plot(imag(c),real(-c),'r.','linewidth',10);
+axis([-1 0.2, -1 0.0])
+grid ON
